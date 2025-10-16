@@ -39,6 +39,7 @@ const Index = () => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
+  const [tempSelectedPlayer, setTempSelectedPlayer] = useState<string>('');
   const [isSpinning, setIsSpinning] = useState(false);
   const [players, setPlayers] = useState<string[]>(['Игрок 1', 'Игрок 2', 'Игрок 3', 'Игрок 4', 'Игрок 5', 'Игрок 6']);
   const [newPlayerName, setNewPlayerName] = useState<string>('');
@@ -77,16 +78,23 @@ const Index = () => {
 
   const spinRandomizer = () => {
     setIsSpinning(true);
+    setTempSelectedPlayer('');
     let spinCount = 0;
     const spinInterval = setInterval(() => {
       const randomPlayer = players[Math.floor(Math.random() * players.length)];
-      setSelectedPlayer(randomPlayer);
+      setTempSelectedPlayer(randomPlayer);
       spinCount++;
       if (spinCount > 15) {
         clearInterval(spinInterval);
         setIsSpinning(false);
       }
     }, 100);
+  };
+
+  const confirmPlayerSelection = () => {
+    if (tempSelectedPlayer) {
+      setSelectedPlayer(tempSelectedPlayer);
+    }
   };
 
   const getRandomDare = () => {
@@ -211,7 +219,7 @@ const Index = () => {
             <div className="gradient-border-inner p-6">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                  <h3 className="text-lg font-semibold text-white">Рандомайзер игрока</h3>
+                  <h3 className="text-lg font-semibold text-white">Игроки</h3>
                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
                       <Button className="px-3 py-1 rounded-full bg-gray-700 hover:bg-gray-600 text-white text-sm">
@@ -265,20 +273,34 @@ const Index = () => {
                   </Dialog>
                 </div>
                 <div className="mb-4">
+                  <div className="mb-2 text-sm text-gray-400">
+                    {selectedPlayer ? `Выбран: ${selectedPlayer}` : 'Никто не выбран'}
+                  </div>
                   <div className={`text-4xl font-bold gradient-bg bg-clip-text text-transparent mb-4 min-h-[3rem] flex items-center justify-center ${
                     isSpinning ? 'animate-glow-pulse' : ''
                   }`}>
-                    {selectedPlayer || '?'}
+                    {tempSelectedPlayer || '?'}
                   </div>
                 </div>
-                <Button
-                  onClick={spinRandomizer}
-                  disabled={isSpinning}
-                  className="px-8 py-3 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 text-black font-semibold hover:scale-105 transition-transform"
-                >
-                  <Icon name="Users" className="mr-2" size={20} />
-                  {isSpinning ? 'Выбираем...' : 'Выбрать игрока'}
-                </Button>
+                <div className="flex gap-3 justify-center flex-wrap">
+                  <Button
+                    onClick={spinRandomizer}
+                    disabled={isSpinning}
+                    className="px-8 py-3 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 text-black font-semibold hover:scale-105 transition-transform"
+                  >
+                    <Icon name="Shuffle" className="mr-2" size={20} />
+                    {isSpinning ? 'Выбираем...' : 'Выбрать'}
+                  </Button>
+                  {tempSelectedPlayer && !isSpinning && (
+                    <Button
+                      onClick={confirmPlayerSelection}
+                      className="px-8 py-3 rounded-full bg-gradient-to-r from-green-400 to-cyan-400 text-black font-semibold hover:scale-105 transition-transform"
+                    >
+                      <Icon name="Check" className="mr-2" size={20} />
+                      Принять
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
