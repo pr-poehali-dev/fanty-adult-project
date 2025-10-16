@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 
 type DifficultyLevel = 'easy' | 'medium' | 'extreme';
@@ -38,6 +40,9 @@ const Index = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<string>('');
   const [isSpinning, setIsSpinning] = useState(false);
+  const [players, setPlayers] = useState<string[]>(['Игрок 1', 'Игрок 2', 'Игрок 3', 'Игрок 4', 'Игрок 5', 'Игрок 6']);
+  const [newPlayerName, setNewPlayerName] = useState<string>('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -51,7 +56,24 @@ const Index = () => {
     return () => clearInterval(interval);
   }, [isTimerRunning, timeLeft]);
 
-  const players = ['Игрок 1', 'Игрок 2', 'Игрок 3', 'Игрок 4', 'Игрок 5', 'Игрок 6'];
+  const addPlayer = () => {
+    if (newPlayerName.trim() && players.length < 12) {
+      setPlayers([...players, newPlayerName.trim()]);
+      setNewPlayerName('');
+    }
+  };
+
+  const removePlayer = (index: number) => {
+    if (players.length > 2) {
+      setPlayers(players.filter((_, i) => i !== index));
+    }
+  };
+
+  const editPlayer = (index: number, newName: string) => {
+    const updated = [...players];
+    updated[index] = newName;
+    setPlayers(updated);
+  };
 
   const spinRandomizer = () => {
     setIsSpinning(true);
@@ -188,7 +210,60 @@ const Index = () => {
           <Card className="gradient-border mb-8">
             <div className="gradient-border-inner p-6">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-white mb-4">Рандомайзер игрока</h3>
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <h3 className="text-lg font-semibold text-white">Рандомайзер игрока</h3>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button className="px-3 py-1 rounded-full bg-gray-700 hover:bg-gray-600 text-white text-sm">
+                        <Icon name="Settings" size={16} />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-gray-900 border-2 border-purple-500 text-white max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl gradient-bg bg-clip-text text-transparent">Управление игроками</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-4">
+                        <div className="flex gap-2">
+                          <Input
+                            value={newPlayerName}
+                            onChange={(e) => setNewPlayerName(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && addPlayer()}
+                            placeholder="Имя игрока"
+                            className="bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+                          />
+                          <Button
+                            onClick={addPlayer}
+                            disabled={!newPlayerName.trim() || players.length >= 12}
+                            className="px-4 bg-gradient-to-r from-purple-400 to-pink-400 text-black font-semibold"
+                          >
+                            <Icon name="Plus" size={20} />
+                          </Button>
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {players.length}/12 игроков (минимум 2)
+                        </div>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {players.map((player, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-gray-800 p-2 rounded-lg">
+                              <Input
+                                value={player}
+                                onChange={(e) => editPlayer(index, e.target.value)}
+                                className="bg-gray-700 border-gray-600 text-white flex-1"
+                              />
+                              <Button
+                                onClick={() => removePlayer(index)}
+                                disabled={players.length <= 2}
+                                className="px-3 bg-red-600 hover:bg-red-700 text-white"
+                              >
+                                <Icon name="Trash2" size={16} />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
                 <div className="mb-4">
                   <div className={`text-4xl font-bold gradient-bg bg-clip-text text-transparent mb-4 min-h-[3rem] flex items-center justify-center ${
                     isSpinning ? 'animate-glow-pulse' : ''
