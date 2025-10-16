@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -9,33 +9,67 @@ interface Dare {
   text: string;
   difficulty: DifficultyLevel;
   category: string;
+  duration?: number;
 }
 
 const dares: Dare[] = [
-  { text: "Поцелуй партнёра в шею на 10 секунд", difficulty: "easy", category: "Романтика" },
-  { text: "Сделай стриптиз под музыку", difficulty: "medium", category: "Танцы" },
-  { text: "Расскажи свою самую откровенную фантазию", difficulty: "medium", category: "Признания" },
-  { text: "Массаж с маслом для партнёра 5 минут", difficulty: "easy", category: "Массаж" },
-  { text: "Сыграй сцену из фильма для взрослых", difficulty: "extreme", category: "Ролевая игра" },
-  { text: "Танец на коленях у партнёра 1 минуту", difficulty: "medium", category: "Танцы" },
-  { text: "Признайся в самом смелом желании прямо сейчас", difficulty: "easy", category: "Признания" },
-  { text: "Покажи свой лучший соблазнительный танец", difficulty: "medium", category: "Танцы" },
-  { text: "Организуй мини-фотосессию для партнёра в белье", difficulty: "extreme", category: "Фото" },
-  { text: "Придумай и расскажи эротический рассказ на ходу", difficulty: "extreme", category: "Творчество" },
-  { text: "Сделай чувственный массаж губами партнёру", difficulty: "medium", category: "Массаж" },
-  { text: "Отыграй роль доминанта/подчинённого 5 минут", difficulty: "extreme", category: "Ролевая игра" },
-  { text: "Шёпотом расскажи партнёру что хочешь сейчас", difficulty: "easy", category: "Признания" },
-  { text: "Медленный стриптиз с завязанными глазами", difficulty: "extreme", category: "Танцы" },
-  { text: "Нарисуй на теле партнёра помадой", difficulty: "medium", category: "Творчество" },
+  { text: "Поцелуй партнёра в шею", difficulty: "easy", category: "Романтика", duration: 10 },
+  { text: "Сделай стриптиз под музыку", difficulty: "medium", category: "Танцы", duration: 60 },
+  { text: "Расскажи свою самую откровенную фантазию", difficulty: "medium", category: "Признания", duration: 45 },
+  { text: "Массаж с маслом для партнёра", difficulty: "easy", category: "Массаж", duration: 120 },
+  { text: "Сыграй сцену из фильма для взрослых", difficulty: "extreme", category: "Ролевая игра", duration: 90 },
+  { text: "Танец на коленях у партнёра", difficulty: "medium", category: "Танцы", duration: 60 },
+  { text: "Признайся в самом смелом желании прямо сейчас", difficulty: "easy", category: "Признания", duration: 30 },
+  { text: "Покажи свой лучший соблазнительный танец", difficulty: "medium", category: "Танцы", duration: 45 },
+  { text: "Организуй мини-фотосессию для партнёра в белье", difficulty: "extreme", category: "Фото", duration: 180 },
+  { text: "Придумай и расскажи эротический рассказ на ходу", difficulty: "extreme", category: "Творчество", duration: 120 },
+  { text: "Сделай чувственный массаж губами партнёру", difficulty: "medium", category: "Массаж", duration: 90 },
+  { text: "Отыграй роль доминанта/подчинённого", difficulty: "extreme", category: "Ролевая игра", duration: 300 },
+  { text: "Шёпотом расскажи партнёру что хочешь сейчас", difficulty: "easy", category: "Признания", duration: 20 },
+  { text: "Медленный стриптиз с завязанными глазами", difficulty: "extreme", category: "Танцы", duration: 90 },
+  { text: "Нарисуй на теле партнёра помадой", difficulty: "medium", category: "Творчество", duration: 60 },
 ];
 
 const Index = () => {
   const [currentDare, setCurrentDare] = useState<Dare | null>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | 'all'>('all');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<string>('');
+  const [isSpinning, setIsSpinning] = useState(false);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setIsTimerRunning(false);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timeLeft]);
+
+  const players = ['Игрок 1', 'Игрок 2', 'Игрок 3', 'Игрок 4', 'Игрок 5', 'Игрок 6'];
+
+  const spinRandomizer = () => {
+    setIsSpinning(true);
+    let spinCount = 0;
+    const spinInterval = setInterval(() => {
+      const randomPlayer = players[Math.floor(Math.random() * players.length)];
+      setSelectedPlayer(randomPlayer);
+      spinCount++;
+      if (spinCount > 15) {
+        clearInterval(spinInterval);
+        setIsSpinning(false);
+      }
+    }, 100);
+  };
 
   const getRandomDare = () => {
     setIsAnimating(true);
+    setIsTimerRunning(false);
     
     setTimeout(() => {
       const filteredDares = selectedDifficulty === 'all' 
@@ -44,8 +78,30 @@ const Index = () => {
       
       const randomDare = filteredDares[Math.floor(Math.random() * filteredDares.length)];
       setCurrentDare(randomDare);
+      setTimeLeft(randomDare.duration || 60);
       setIsAnimating(false);
     }, 300);
+  };
+
+  const startTimer = () => {
+    if (currentDare && timeLeft > 0) {
+      setIsTimerRunning(true);
+    }
+  };
+
+  const pauseTimer = () => {
+    setIsTimerRunning(false);
+  };
+
+  const resetTimer = () => {
+    setIsTimerRunning(false);
+    setTimeLeft(currentDare?.duration || 60);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const getDifficultyColor = (difficulty: DifficultyLevel) => {
@@ -129,6 +185,29 @@ const Index = () => {
             </Button>
           </div>
 
+          <Card className="gradient-border mb-8">
+            <div className="gradient-border-inner p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-white mb-4">Рандомайзер игрока</h3>
+                <div className="mb-4">
+                  <div className={`text-4xl font-bold gradient-bg bg-clip-text text-transparent mb-4 min-h-[3rem] flex items-center justify-center ${
+                    isSpinning ? 'animate-glow-pulse' : ''
+                  }`}>
+                    {selectedPlayer || '?'}
+                  </div>
+                </div>
+                <Button
+                  onClick={spinRandomizer}
+                  disabled={isSpinning}
+                  className="px-8 py-3 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 text-black font-semibold hover:scale-105 transition-transform"
+                >
+                  <Icon name="Users" className="mr-2" size={20} />
+                  {isSpinning ? 'Выбираем...' : 'Выбрать игрока'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+
           {currentDare && (
             <Card 
               className={`gradient-border mb-8 transition-all duration-300 ${
@@ -142,9 +221,45 @@ const Index = () => {
                   </span>
                   <span className="text-gray-400 text-sm">{currentDare.category}</span>
                 </div>
-                <p className="text-2xl md:text-3xl text-white font-medium leading-relaxed">
+                <p className="text-2xl md:text-3xl text-white font-medium leading-relaxed mb-6">
                   {currentDare.text}
                 </p>
+                
+                <div className="border-t border-gray-700 pt-6">
+                  <div className="text-center mb-4">
+                    <div className={`text-5xl font-bold mb-4 ${
+                      timeLeft <= 10 ? 'text-red-500 animate-glow-pulse' : 'gradient-bg bg-clip-text text-transparent'
+                    }`}>
+                      {formatTime(timeLeft)}
+                    </div>
+                    <div className="flex gap-3 justify-center flex-wrap">
+                      {!isTimerRunning ? (
+                        <Button
+                          onClick={startTimer}
+                          className="px-6 py-2 rounded-full bg-gradient-to-r from-green-400 to-cyan-400 text-black font-semibold hover:scale-105 transition-transform"
+                        >
+                          <Icon name="Play" className="mr-2" size={18} />
+                          Старт
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={pauseTimer}
+                          className="px-6 py-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 text-black font-semibold hover:scale-105 transition-transform"
+                        >
+                          <Icon name="Pause" className="mr-2" size={18} />
+                          Пауза
+                        </Button>
+                      )}
+                      <Button
+                        onClick={resetTimer}
+                        className="px-6 py-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                      >
+                        <Icon name="RotateCcw" className="mr-2" size={18} />
+                        Сброс
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </Card>
           )}
