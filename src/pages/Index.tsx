@@ -274,49 +274,6 @@ const Index = () => {
             </Button>
           </div>
         </div>
-
-        <div className="max-w-2xl mx-auto mt-16">
-          <h2 className="text-2xl font-bold text-center mb-6 gradient-bg bg-clip-text text-transparent">
-            Правила игры
-          </h2>
-          <div className="grid gap-4">
-            <Card className="gradient-border">
-              <div className="gradient-border-inner p-6">
-                <div className="flex items-start gap-4">
-                  <Icon name="Users" className="text-cyan-400 mt-1 flex-shrink-0" size={24} />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2 text-white">Для компании 18+</h3>
-                    <p className="text-gray-400">Игра предназначена только для совершеннолетних участников</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="gradient-border">
-              <div className="gradient-border-inner p-6">
-                <div className="flex items-start gap-4">
-                  <Icon name="Heart" className="text-pink-400 mt-1 flex-shrink-0" size={24} />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2 text-white">Обоюдное согласие</h3>
-                    <p className="text-gray-400">Все участники должны быть согласны на выполнение заданий</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="gradient-border">
-              <div className="gradient-border-inner p-6">
-                <div className="flex items-start gap-4">
-                  <Icon name="ShieldCheck" className="text-purple-400 mt-1 flex-shrink-0" size={24} />
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2 text-white">Можно отказаться</h3>
-                    <p className="text-gray-400">Любой участник может отказаться от задания без объяснений</p>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
       </div>
     </div>
   );
